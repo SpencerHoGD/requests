@@ -26,6 +26,7 @@ from urllib3.exceptions import ProtocolError
 from urllib3.exceptions import ReadTimeoutError
 from urllib3.exceptions import SSLError as _SSLError
 from urllib3.exceptions import ResponseError
+from urllib3.exceptions import LocationValueError
 
 from .models import Response
 from .compat import urlparse, basestring
@@ -35,7 +36,8 @@ from .utils import (DEFAULT_CA_BUNDLE_PATH, extract_zipped_paths,
 from .structures import CaseInsensitiveDict
 from .cookies import extract_cookies_to_jar
 from .exceptions import (ConnectionError, ConnectTimeout, ReadTimeout, SSLError,
-                         ProxyError, RetryError, InvalidSchema, InvalidProxyURL)
+                         ProxyError, RetryError, InvalidSchema, InvalidProxyURL,
+                         InvalidURL)
 from .auth import _basic_auth_str
 
 try:
@@ -127,8 +129,7 @@ class HTTPAdapter(BaseAdapter):
         self.init_poolmanager(pool_connections, pool_maxsize, block=pool_block)
 
     def __getstate__(self):
-        return dict((attr, getattr(self, attr, None)) for attr in
-                    self.__attrs__)
+        return {attr: getattr(self, attr, None) for attr in self.__attrs__}
 
     def __setstate__(self, state):
         # Can't handle by adding 'proxy_manager' to self.__attrs__ because
@@ -224,7 +225,7 @@ class HTTPAdapter(BaseAdapter):
 
             if not cert_loc or not os.path.exists(cert_loc):
                 raise IOError("Could not find a suitable TLS CA certificate bundle, "
-                              "invalid path: {0}".format(cert_loc))
+                              "invalid path: {}".format(cert_loc))
 
             conn.cert_reqs = 'CERT_REQUIRED'
 
@@ -246,10 +247,10 @@ class HTTPAdapter(BaseAdapter):
                 conn.key_file = None
             if conn.cert_file and not os.path.exists(conn.cert_file):
                 raise IOError("Could not find the TLS certificate file, "
-                              "invalid path: {0}".format(conn.cert_file))
+                              "invalid path: {}".format(conn.cert_file))
             if conn.key_file and not os.path.exists(conn.key_file):
                 raise IOError("Could not find the TLS key file, "
-                              "invalid path: {0}".format(conn.key_file))
+                              "invalid path: {}".format(conn.key_file))
 
     def build_response(self, req, resp):
         """Builds a :class:`Response <requests.Response>` object from a urllib3
@@ -378,7 +379,7 @@ class HTTPAdapter(BaseAdapter):
         when subclassing the
         :class:`HTTPAdapter <requests.adapters.HTTPAdapter>`.
 
-        :param proxies: The url of the proxy being used for this request.
+        :param proxy: The url of the proxy being used for this request.
         :rtype: dict
         """
         headers = {}
@@ -407,7 +408,10 @@ class HTTPAdapter(BaseAdapter):
         :rtype: requests.Response
         """
 
-        conn = self.get_connection(request.url, proxies)
+        try:
+            conn = self.get_connection(request.url, proxies)
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
 
         self.cert_verify(conn, request.url, verify, cert)
         url = self.request_url(request, proxies)
@@ -421,7 +425,7 @@ class HTTPAdapter(BaseAdapter):
                 timeout = TimeoutSauce(connect=connect, read=read)
             except ValueError as e:
                 # this may raise a string formatting error.
-                err = ("Invalid timeout {0}. Pass a (connect, read) "
+                err = ("Invalid timeout {}. Pass a (connect, read) "
                        "timeout tuple, or a single float to set "
                        "both timeouts to the same value".format(timeout))
                 raise ValueError(err)
@@ -431,65 +435,19 @@ class HTTPAdapter(BaseAdapter):
             timeout = TimeoutSauce(connect=timeout, read=timeout)
 
         try:
-            if not chunked:
-                resp = conn.urlopen(
-                    method=request.method,
-                    url=url,
-                    body=request.body,
-                    headers=request.headers,
-                    redirect=False,
-                    assert_same_host=False,
-                    preload_content=False,
-                    decode_content=False,
-                    retries=self.max_retries,
-                    timeout=timeout
-                )
-
-            # Send the request.
-            else:
-                if hasattr(conn, 'proxy_pool'):
-                    conn = conn.proxy_pool
-
-                low_conn = conn._get_conn(timeout=DEFAULT_POOL_TIMEOUT)
-
-                try:
-                    low_conn.putrequest(request.method,
-                                        url,
-                                        skip_accept_encoding=True)
-
-                    for header, value in request.headers.items():
-                        low_conn.putheader(header, value)
-
-                    low_conn.endheaders()
-
-                    for i in request.body:
-                        low_conn.send(hex(len(i))[2:].encode('utf-8'))
-                        low_conn.send(b'\r\n')
-                        low_conn.send(i)
-                        low_conn.send(b'\r\n')
-                    low_conn.send(b'0\r\n\r\n')
-
-                    # Receive the response from the server
-                    try:
-                        # For Python 2.7+ versions, use buffering of HTTP
-                        # responses
-                        r = low_conn.getresponse(buffering=True)
-                    except TypeError:
-                        # For compatibility with Python 2.6 versions and back
-                        r = low_conn.getresponse()
-
-                    resp = HTTPResponse.from_httplib(
-                        r,
-                        pool=conn,
-                        connection=low_conn,
-                        preload_content=False,
-                        decode_content=False
-                    )
-                except:
-                    # If we hit any problems here, clean up the connection.
-                    # Then, reraise so that we can handle the actual exception.
-                    low_conn.close()
-                    raise
+            resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked
+            )
 
         except (ProtocolError, socket.error) as err:
             raise ConnectionError(err, request=request)

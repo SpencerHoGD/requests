@@ -14,6 +14,12 @@ requests.egg-info/
 *.swp
 *.egg
 env/
+.venv/
+.eggs/
+.tox/
+.pytest_cache/
+.vscode/
+.eggs/
 
 .workon
 
@@ -21,3 +27,5 @@ t.py
 
 t2.py
 dist
+
+/.mypy_cache/

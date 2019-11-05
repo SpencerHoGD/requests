@@ -13,11 +13,12 @@ contributing to the Requests project is *very* generous of you.
 This document lays out guidelines and advice for contributing to this project.
 If you're thinking of contributing, please start by reading this document and
 getting a feel for how contributing to this project works. If you have any
-questions, feel free to reach out to either `Ian Cordasco`_ or `Cory Benfield`_,
-the primary maintainers.
+questions, feel free to reach out to either `Ian Cordasco`_, `Cory Benfield`_,
+or `Nate Prewitt`_, the primary maintainers.
 
 .. _Ian Cordasco: http://www.coglib.com/~icordasc/
 .. _Cory Benfield: https://lukasa.co.uk/about
+.. _Nate Prewitt: https://www.nateprewitt.com/
 
 If you have non-technical feedback, philosophical ponderings, crazy ideas, or
 other general thoughts about Requests or its position within the Python
@@ -41,7 +42,7 @@ including reporting bugs or requesting features. This golden rule is
 **All contributions are welcome**, as long as
 everyone involved is treated with respect.
 
-.. _be cordial or be on your way: http://kennethreitz.org/be-cordial-or-be-on-your-way/
+.. _be cordial or be on your way: https://www.kennethreitz.org/essays/be-cordial-or-be-on-your-way
 
 .. _early-feedback:
 
@@ -129,7 +130,14 @@ the Requests codebase::
     foo = long_function_name(var_one, var_two,
                              var_three, var_four)
 
-No. Just don't. Please.
+No. Just don't. Please. This is much better::
+
+    foo = long_function_name(
+        var_one,
+        var_two,
+        var_three,
+        var_four,
+    )
 
 Docstrings are to follow the following syntaxes::
 
@@ -157,7 +165,7 @@ model methods (e.g. ``__repr__``) are typically the exception to this rule.
 
 Thanks for helping to make the world a better place!
 
-.. _PEP 8: http://pep8.org
+.. _PEP 8: https://pep8.org/
 .. _line continuations: https://www.python.org/dev/peps/pep-0008/#indentation
 
 Documentation Contributions
@@ -189,7 +197,7 @@ through the `GitHub issues`_, **both open and closed**, to confirm that the bug
 hasn't been reported before. Duplicate bug reports are a huge drain on the time
 of other contributors, and should be avoided as much as possible.
 
-.. _GitHub issues: https://github.com/requests/requests/issues
+.. _GitHub issues: https://github.com/psf/requests/issues
 
 
 Feature Requests

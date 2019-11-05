@@ -50,16 +50,46 @@ class TestTestServer:
         )
 
         with server as (host, port):
-            r = requests.get('http://{0}:{1}'.format(host, port))
+            r = requests.get('http://{}:{}'.format(host, port))
 
             assert r.status_code == 200
             assert r.text == u'roflol'
             assert r.headers['Content-Length'] == '6'
 
+    def test_text_bom_response(self):
+        """the text_response_server sends the given text with UTF-8 BOM"""
+        server = Server.text_response_server(
+            "HTTP/1.1 200 OK\r\n" +
+            "Content-Type: text/html; charset=UTF-8\r\n" +
+            u'\r\n\ufeff<doctype html><html><body>ジェーピーニック</body></html>'
+        )
+
+        with server as (host, port):
+            r = requests.get('http://{}:{}'.format(host, port))
+
+            assert r.status_code == 200
+            assert r.text == u'<doctype html><html><body>ジェーピーニック</body></html>'
+            assert r.headers['Content-Type'] == 'text/html; charset=UTF-8'
+
+    def test_json_bom_response(self):
+        """the text_response_server sends the given JSON with UTF-8 BOM"""
+        server = Server.text_response_server(
+            "HTTP/1.1 200 OK\r\n" +
+            "Content-Type: application/json; charset=utf-8\r\n" +
+            u'\r\n\ufeff{"success": true}'
+        )
+
+        with server as (host, port):
+            r = requests.get('http://{}:{}'.format(host, port))
+
+            assert r.status_code == 200
+            assert r.json() == {'success': True}
+            assert r.headers['Content-Type'] == 'application/json; charset=utf-8'
+
     def test_basic_response(self):
         """the basic response server returns an empty http response"""
         with Server.basic_response_server() as (host, port):
-            r = requests.get('http://{0}:{1}'.format(host, port))
+            r = requests.get('http://{}:{}'.format(host, port))
             assert r.status_code == 200
             assert r.text == u''
             assert r.headers['Content-Length'] == '0'
@@ -83,7 +113,7 @@ class TestTestServer:
         server = Server.basic_response_server(requests_to_handle=requests_to_handle)
 
         with server as (host, port):
-            server_url = 'http://{0}:{1}'.format(host, port)
+            server_url = 'http://{}:{}'.format(host, port)
             for _ in range(requests_to_handle):
                 r = requests.get(server_url)
                 assert r.status_code == 200

@@ -1,34 +1,4 @@
 <!-- Alabaster (krTheme++) Hacks -->
-<aside id="python27">
-    Python 3, the new best practice, is here to stay.
-    Python 2 will retire in only <time></time> months!
-</aside>
-
-<!-- Python 2 Death Clock™ -->
-<style type="text/css">
-  body { margin-top: 4em; }
-  #python27 {
-      position: fixed;
-      top: 0;
-      left: 0; right: 0;
-      height:  auto;
-      text-align: center;
-      color: white;
-      background-color: black;
-      font-size: larger;
-      line-height: 3;
-  }
-
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-<script>
-  var death = new Date('2020-04-12');
-
-  var diff = moment.duration(death - moment());
-
-  document.querySelector('#python27 time').innerText = (diff.years() * 12) + diff.months();
-</script>
-
 
 <!-- CSS Adjustments (I'm very picky.) -->
 <style type="text/css">
@@ -84,3 +54,57 @@
 </script>
 
 <!-- That was not a hack. That was art. -->
+
+<!-- Native CPC by BuySellAds -->
+
+<script type="text/javascript" src="//m.servedby-buysellads.com/monetization.js"></script>
+
+<div id="native-ribbon">
+</div>
+
+<script>
+_bsa.init('custom', 'CK7D62JU', 'placement:pythonrequestsorg',
+    {
+      target: '#native-ribbon',
+      template: `
+<div class="native-sponsor">Sponsored by ##company## — Learn More</div>
+  <a href="##link##" class="native-flex">
+    <style>
+    #native-ribbon #_custom_ {
+      background: linear-gradient(-30deg, ##backgroundColor##E5, ##backgroundColor##E5 45%, ##backgroundColor## 45%) #fff;
+    }
+
+    .native-details,
+    .native-sponsor,
+    .native-bsa {
+      color: ##textColor## !important;
+    }
+
+    .native-details:hover {
+      color: ##textColorHover## !important;
+    }
+
+    .native-cta {
+      color: ##ctaTextColor##;
+      background-color: ##ctaBackgroundColor##;
+    }
+
+    .native-cta:hover {
+      color: ##ctaTextColorHover##;
+      background-color: ##ctaBackgroundColorHover##;
+    }
+    </style>
+    <div class="native-main">
+      <img class="native-img" src="##logo##">
+      <div class="native-details">
+        <span class="native-company">##title##</span>
+        <span class="native-desc">##description##</span>
+      </div>
+    </div>
+    <span class="native-cta">##callToAction##</span>
+  </a>
+</div>
+`
+    }
+  );
+</script>

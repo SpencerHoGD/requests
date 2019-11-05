@@ -1,13 +1,15 @@
-Requests is written and maintained by Kenneth Reitz and
-various contributors:
+Requests was lovingly created by Kenneth Reitz.
 
-Keepers of the Four Crystals
+Keepers of the Crystals
+```````````````````````
+
+- Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_.
+- Nate Prewitt <nate.prewitt@gmail.com> `@nateprewitt <https://github.com/nateprewitt>`_.
+
+Previous Keepers of Crystals
 ````````````````````````````
-
-- Kenneth Reitz <me@kennethreitz.org> `@kennethreitz <https://github.com/kennethreitz>`_, Keeper of the Master Crystal.
+- Kenneth Reitz <me@kennethreitz.org> `@kennethreitz <https://github.com/kennethreitz>`_, reluctant Keeper of the Master Crystal.
 - Cory Benfield <cory@lukasa.co.uk> `@lukasa <https://github.com/lukasa>`_
-- Ian Cordasco <graffatcolmingov@gmail.com> `@sigmavirus24 <https://github.com/sigmavirus24>`_
-- Nate Prewitt <nate.prewitt@gmail.com> `@nateprewitt <https://github.com/nateprewitt>`_
 
 
 Patches and Suggestions
@@ -121,7 +123,7 @@ Patches and Suggestions
 - Bryce Boe <bbzbryce@gmail.com> (`@bboe <https://github.com/bboe>`_)
 - Colin Dunklau <colin.dunklau@gmail.com> (`@cdunklau <https://github.com/cdunklau>`_)
 - Bob Carroll <bob.carroll@alum.rit.edu> (`@rcarz <https://github.com/rcarz>`_)
-- Hugo Osvaldo Barrera <hugo@osvaldobarrera.com.ar> (`@hobarrera <https://github.com/hobarrera>`_)
+- Hugo Osvaldo Barrera <hugo@barrera.io> (`@hobarrera <https://github.com/hobarrera>`_)
 - Łukasz Langa <lukasz@langa.pl>
 - Dave Shawley <daveshawley@gmail.com>
 - James Clarke (`@jam <https://github.com/jam>`_)
@@ -183,3 +185,8 @@ Patches and Suggestions
 - Nehal J Wani (`@nehaljwani <https://github.com/nehaljwani>`_)
 - Demetrios Bairaktaris (`@DemetriosBairaktaris <https://github.com/demetriosbairaktaris>`_)
 - Darren Dormer (`@ddormer <https://github.com/ddormer>`_)
+- Rajiv Mayani (`@mayani <https://github.com/mayani>`_)
+- Antti Kaihola (`@akaihola <https://github.com/akaihola>`_)
+- "Dull Bananas" <dull.bananas0@gmail.com> (`@dullbananas <https://github.com/dullbananas>`_)
+- Alessio Izzo (`@aless10 <https://github.com/aless10>`_)
+- Belavin Denis (`@luckydenis <https://github.com/luckydenis>`_)

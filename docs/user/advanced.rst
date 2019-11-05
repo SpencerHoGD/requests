@@ -25,8 +25,8 @@ Let's persist some cookies across requests::
 
     s = requests.Session()
 
-    s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
-    r = s.get('http://httpbin.org/cookies')
+    s.get('https://httpbin.org/cookies/set/sessioncookie/123456789')
+    r = s.get('https://httpbin.org/cookies')
 
     print(r.text)
     # '{"cookies": {"sessioncookie": "123456789"}}'
@@ -40,7 +40,7 @@ is done by providing data to the properties on a Session object::
     s.headers.update({'x-test': 'true'})
 
     # both 'x-test' and 'x-test2' are sent
-    s.get('http://httpbin.org/headers', headers={'x-test2': 'true'})
+    s.get('https://httpbin.org/headers', headers={'x-test2': 'true'})
 
 
 Any dictionaries that you pass to a request method will be merged with the
@@ -53,11 +53,11 @@ with the first request, but not the second::
 
     s = requests.Session()
 
-    r = s.get('http://httpbin.org/cookies', cookies={'from-my': 'browser'})
+    r = s.get('https://httpbin.org/cookies', cookies={'from-my': 'browser'})
     print(r.text)
     # '{"cookies": {"from-my": "browser"}}'
 
-    r = s.get('http://httpbin.org/cookies')
+    r = s.get('https://httpbin.org/cookies')
     print(r.text)
     # '{"cookies": {}}'
 
@@ -69,7 +69,7 @@ If you want to manually add cookies to your session, use the
 Sessions can also be used as context managers::
 
     with requests.Session() as s:
-        s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
+        s.get('https://httpbin.org/cookies/set/sessioncookie/123456789')
 
 This will make sure the session is closed as soon as the ``with`` block is
 exited, even if unhandled exceptions occurred.
@@ -97,7 +97,7 @@ The ``Response`` object contains all of the information returned by the server a
 also contains the ``Request`` object you created originally. Here is a simple
 request to get some very important information from Wikipedia's servers::
 
-    >>> r = requests.get('http://en.wikipedia.org/wiki/Monty_Python')
+    >>> r = requests.get('https://en.wikipedia.org/wiki/Monty_Python')
 
 If we want to access the headers the server sent back to us, we do this::
 
@@ -193,7 +193,7 @@ When you are using the prepared request flow, keep in mind that it does not take
 This can cause problems if you are using environment variables to change the behaviour of requests.
 For example: Self-signed SSL certificates specified in ``REQUESTS_CA_BUNDLE`` will not be taken into account.
 As a result an ``SSL: CERTIFICATE_VERIFY_FAILED`` is thrown.
-You can get around this behaviour by explicity merging the environment settings into your session::
+You can get around this behaviour by explicitly merging the environment settings into your session::
 
     from requests import Request, Session
 
@@ -203,7 +203,7 @@ You can get around this behaviour by explicity merging the environment settings 
     prepped = s.prepare_request(req)
 
     # Merge environment settings into session
-    settings = s.merge_environment_settings(prepped.url, None, None, None, None)
+    settings = s.merge_environment_settings(prepped.url, {}, None, None, None)
     resp = s.send(prepped, **settings)
 
     print(resp.status_code)
@@ -274,21 +274,20 @@ If you specify a wrong path or an invalid cert, you'll get a SSLError::
 CA Certificates
 ---------------
 
-By default, Requests bundles a set of root CAs that it trusts, sourced from the
-`Mozilla trust store`_. However, these are only updated once for each Requests
-version. This means that if you pin a Requests version your certificates can
-become extremely out of date.
+Requests uses certificates from the package `certifi`_. This allows for users
+to update their trusted certificates without changing the version of Requests.
 
-From Requests version 2.4.0 onwards, Requests will attempt to use certificates
-from `certifi`_ if it is present on the system. This allows for users to update
-their trusted certificates without having to change the code that runs on their
-system.
+Before version 2.16, Requests bundled a set of root CAs that it trusted,
+sourced from the `Mozilla trust store`_. The certificates were only updated
+once for each Requests version. When ``certifi`` was not installed, this led to
+extremely out-of-date certificate bundles when using significantly older
+versions of Requests.
 
 For the sake of security we recommend upgrading certifi frequently!
 
 .. _HTTP persistent connection: https://en.wikipedia.org/wiki/HTTP_persistent_connection
 .. _connection pooling: https://urllib3.readthedocs.io/en/latest/reference/index.html#module-urllib3.connectionpool
-.. _certifi: http://certifi.io/
+.. _certifi: https://certifiio.readthedocs.io/
 .. _Mozilla trust store: https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt
 
 .. _body-content-workflow:
@@ -301,7 +300,7 @@ immediately. You can override this behaviour and defer downloading the response
 body until you access the :attr:`Response.content <requests.Response.content>`
 attribute with the ``stream`` parameter::
 
-    tarball_url = 'https://github.com/requests/requests/tarball/master'
+    tarball_url = 'https://github.com/psf/requests/tarball/master'
     r = requests.get(tarball_url, stream=True)
 
 At this point only the response headers have been downloaded and the connection
@@ -324,7 +323,7 @@ inefficiency with connections. If you find yourself partially reading request
 bodies (or not reading them at all) while using ``stream=True``, you should
 make the request within a ``with`` statement to ensure it's always closed::
 
-    with requests.get('http://httpbin.org/get', stream=True) as r:
+    with requests.get('https://httpbin.org/get', stream=True) as r:
         # Do things with the response here.
 
 .. _keep-alive:
@@ -352,13 +351,11 @@ file-like object for your body::
     with open('massive-body', 'rb') as f:
         requests.post('http://some.url/streamed', data=f)
 
-.. warning:: It is strongly recommended that you open files in `binary mode`_.
-             This is because Requests may attempt to provide the
-             ``Content-Length`` header for you, and if it does this value will
-             be set to the number of *bytes* in the file. Errors may occur if
-             you open the file in *text mode*.
-
-.. _binary mode: https://docs.python.org/2/tutorial/inputoutput.html#reading-and-writing-files
+.. warning:: It is strongly recommended that you open files in :ref:`binary
+             mode <tut-files>`. This is because Requests may attempt to provide
+             the ``Content-Length`` header for you, and if it does this value
+             will be set to the number of *bytes* in the file. Errors may occur
+             if you open the file in *text mode*.
 
 
 .. _chunk-encoding:
@@ -396,7 +393,7 @@ upload image files to an HTML form with a multiple file field 'images'::
 
 To do that, just set files to a list of tuples of ``(form_field_name, file_info)``::
 
-    >>> url = 'http://httpbin.org/post'
+    >>> url = 'https://httpbin.org/post'
     >>> multiple_files = [
             ('images', ('foo.png', open('foo.png', 'rb'), 'image/png')),
             ('images', ('bar.png', open('bar.png', 'rb'), 'image/png'))]
@@ -409,13 +406,11 @@ To do that, just set files to a list of tuples of ``(form_field_name, file_info)
       ...
     }
 
-.. warning:: It is strongly recommended that you open files in `binary mode`_.
-             This is because Requests may attempt to provide the
-             ``Content-Length`` header for you, and if it does this value will
-             be set to the number of *bytes* in the file. Errors may occur if
-             you open the file in *text mode*.
-
-.. _binary mode: https://docs.python.org/2/tutorial/inputoutput.html#reading-and-writing-files
+.. warning:: It is strongly recommended that you open files in :ref:`binary
+             mode <tut-files>`. This is because Requests may attempt to provide
+             the ``Content-Length`` header for you, and if it does this value
+             will be set to the number of *bytes* in the file. Errors may occur
+             if you open the file in *text mode*.
 
 
 .. _event-hooks:
@@ -450,7 +445,7 @@ If an error occurs while executing your callback, a warning is given.
 
 If the callback function returns a value, it is assumed that it is to
 replace the data that was passed in. If the function doesn't return
-anything, nothing else is effected.
+anything, nothing else is affected.
 
 ::
 
@@ -460,13 +455,13 @@ anything, nothing else is effected.
 
 Let's print some request method arguments at runtime::
 
-    >>> requests.get('http://httpbin.org', hooks={'response': print_url})
-    http://httpbin.org
+    >>> requests.get('https://httpbin.org/', hooks={'response': print_url})
+    https://httpbin.org/
     <Response [200]>
 
 You can add multiple hooks to a single request.  Let's call two hooks at once::
 
-    >>> r = requests.get('http://httpbin.org', hooks={'response': [print_url, record_hook]})
+    >>> r = requests.get('https://httpbin.org/', hooks={'response': [print_url, record_hook]})
     >>> r.hook_called
     True
 
@@ -475,8 +470,8 @@ be called on every request made to the session.  For example::
 
    >>> s = requests.Session()
    >>> s.hooks['response'].append(print_url)
-   >>> s.get('http://httpbin.org')
-    http://httpbin.org
+   >>> s.get('https://httpbin.org/')
+    https://httpbin.org/
     <Response [200]>
 
 A ``Session`` can have multiple hooks, which will be called in the order
@@ -534,7 +529,7 @@ set ``stream`` to ``True`` and iterate over the response with
     import json
     import requests
 
-    r = requests.get('http://httpbin.org/stream/20', stream=True)
+    r = requests.get('https://httpbin.org/stream/20', stream=True)
 
     for line in r.iter_lines():
 
@@ -548,7 +543,7 @@ When using `decode_unicode=True` with
 :meth:`Response.iter_content() <requests.Response.iter_content>`, you'll want
 to provide a fallback encoding in the event the server doesn't provide one::
 
-    r = requests.get('http://httpbin.org/stream/20', stream=True)
+    r = requests.get('https://httpbin.org/stream/20', stream=True)
 
     if r.encoding is None:
         r.encoding = 'utf-8'
@@ -657,12 +652,12 @@ When you receive a response, Requests makes a guess at the encoding to
 use for decoding the response when you access the :attr:`Response.text
 <requests.Response.text>` attribute. Requests will first check for an
 encoding in the HTTP header, and if none is present, will use `chardet
-<https://pypi.python.org/pypi/chardet>`_ to attempt to guess the encoding.
+<https://pypi.org/project/chardet/>`_ to attempt to guess the encoding.
 
 The only time Requests will not do this is if no explicit charset
 is present in the HTTP headers **and** the ``Content-Type``
 header contains ``text``. In this situation, `RFC 2616
-<http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7.1>`_ specifies
+<https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7.1>`_ specifies
 that the default charset must be ``ISO-8859-1``. Requests follows the
 specification in this case. If you require a different encoding, you can
 manually set the :attr:`Response.encoding <requests.Response.encoding>`
@@ -685,7 +680,7 @@ from GitHub. Suppose we wanted commit ``a050faf`` on Requests. We would get it
 like so::
 
     >>> import requests
-    >>> r = requests.get('https://api.github.com/repos/requests/requests/git/commits/a050faf084662f3a352dd1a941f2c7c9f886d4ad')
+    >>> r = requests.get('https://api.github.com/repos/psf/requests/git/commits/a050faf084662f3a352dd1a941f2c7c9f886d4ad')
 
 We should confirm that GitHub responded correctly. If it has, we want to work
 out what type of content it is. Do this like so::
@@ -740,12 +735,12 @@ we should probably avoid making ham-handed POSTS to it. Instead, let's play
 with the Issues feature of GitHub.
 
 This documentation was added in response to
-`Issue #482 <https://github.com/requests/requests/issues/482>`_. Given that
+`Issue #482 <https://github.com/psf/requests/issues/482>`_. Given that
 this issue already exists, we will use it as an example. Let's start by getting it.
 
 ::
 
-    >>> r = requests.get('https://api.github.com/repos/requests/requests/issues/482')
+    >>> r = requests.get('https://api.github.com/repos/psf/requests/issues/482')
     >>> r.status_code
     200
 
@@ -788,7 +783,7 @@ is to POST to the thread. Let's do it.
 ::
 
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it!"})
-    >>> url = u"https://api.github.com/repos/requests/requests/issues/482/comments"
+    >>> url = u"https://api.github.com/repos/psf/requests/issues/482/comments"
 
     >>> r = requests.post(url=url, data=body)
     >>> r.status_code
@@ -822,7 +817,7 @@ that.
     5804413
 
     >>> body = json.dumps({u"body": u"Sounds great! I'll get right on it once I feed my cat."})
-    >>> url = u"https://api.github.com/repos/requests/requests/issues/comments/5804413"
+    >>> url = u"https://api.github.com/repos/psf/requests/issues/comments/5804413"
 
     >>> r = requests.patch(url=url, data=body, auth=auth)
     >>> r.status_code
@@ -926,7 +921,7 @@ it should apply to.
 ::
 
     >>> s = requests.Session()
-    >>> s.mount('http://www.github.com', MyAdapter())
+    >>> s.mount('https://github.com/', MyAdapter())
 
 The mount call registers a specific instance of a Transport Adapter to a
 prefix. Once mounted, any HTTP request made using that session whose URL starts
@@ -951,9 +946,9 @@ passed-through to `urllib3`. We'll make a Transport Adapter that instructs the
 library to use SSLv3::
 
     import ssl
+    from urllib3.poolmanager import PoolManager
 
     from requests.adapters import HTTPAdapter
-    from requests.packages.urllib3.poolmanager import PoolManager
 
 
     class Ssl3HttpAdapter(HTTPAdapter):
@@ -964,7 +959,7 @@ library to use SSLv3::
                 num_pools=connections, maxsize=maxsize,
                 block=block, ssl_version=ssl.PROTOCOL_SSLv3)
 
-.. _`described here`: http://www.kennethreitz.org/essays/the-future-of-python-http
+.. _`described here`: https://www.kennethreitz.org/essays/the-future-of-python-http
 .. _`urllib3`: https://github.com/shazow/urllib3
 
 .. _blocking-or-nonblocking:
@@ -981,11 +976,12 @@ response at a time. However, these calls will still block.
 
 If you are concerned about the use of blocking IO, there are lots of projects
 out there that combine Requests with one of Python's asynchronicity frameworks.
-Some excellent examples are `requests-threads`_, `grequests`_,  and `requests-futures`_.
+Some excellent examples are `requests-threads`_, `grequests`_, `requests-futures`_, and `requests-async`_.
 
 .. _`requests-threads`: https://github.com/requests/requests-threads
 .. _`grequests`: https://github.com/kennethreitz/grequests
 .. _`requests-futures`: https://github.com/ross/requests-futures
+.. _`requests-async`: https://github.com/encode/requests-async
 
 Header Ordering
 ---------------
@@ -1008,7 +1004,7 @@ The **connect** timeout is the number of seconds Requests will wait for your
 client to establish a connection to a remote machine (corresponding to the
 `connect()`_) call on the socket. It's a good practice to set connect timeouts
 to slightly larger than a multiple of 3, which is the default `TCP packet
-retransmission window <http://www.hjp.at/doc/rfc/rfc2988.txt>`_.
+retransmission window <https://www.hjp.at/doc/rfc/rfc2988.txt>`_.
 
 Once your client has connected to the server and sent the HTTP request, the
 **read** timeout is the number of seconds the client will wait for the server
@@ -1033,4 +1029,4 @@ coffee.
 
     r = requests.get('https://github.com', timeout=None)
 
-.. _`connect()`: http://linux.die.net/man/2/connect
+.. _`connect()`: https://linux.die.net/man/2/connect

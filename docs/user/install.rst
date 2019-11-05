@@ -18,22 +18,22 @@ To install Requests, simply run this simple command in your terminal of choice::
     $ pipenv install requests
 
 If you don't have `pipenv <http://pipenv.org/>`_ installed (tisk tisk!), head over to the Pipenv website for installation instructions. Or, if you prefer to just use pip and don't have it installed,
-`this Python installation guide <http://docs.python-guide.org/en/latest/starting/installation/>`_
+`this Python installation guide <https://requests.readthedocs.io/en/master/user/install/>`_
 can guide you through the process.
 
 Get the Source Code
 -------------------
 
 Requests is actively developed on GitHub, where the code is
-`always available <https://github.com/requests/requests>`_.
+`always available <https://github.com/psf/requests>`_.
 
 You can either clone the public repository::
 
-    $ git clone git://github.com/requests/requests.git
+    $ git clone git://github.com/psf/requests.git
 
-Or, download the `tarball <https://github.com/requests/requests/tarball/master>`_::
+Or, download the `tarball <https://github.com/psf/requests/tarball/master>`_::
 
-    $ curl -OL https://github.com/requests/requests/tarball/master
+    $ curl -OL https://github.com/psf/requests/tarball/master
     # optionally, zipball is also available (for Windows users).
 
 Once you have a copy of the source, you can embed it in your own Python
